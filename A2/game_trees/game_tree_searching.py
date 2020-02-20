@@ -23,44 +23,50 @@ class GameTreeSearching:
   # To avoid unwanted issues with recursion and state manipulation you should work with a _copy_ of the state
   # instead of the original.
 
+
+
   @staticmethod
   def minimax_search(state, eval_fn, depth = 2):
     # Question 1, your minimax search solution goes here
     # Returns a SINGLE action based off the results of the search
+    return GameTreeSearching.minimax_helper(state, eval_fn, depth)[0]
+    
+    
+  @staticmethod
+  def minimax_helper(state, eval_fn, depth):
     state_copy = state.copy()
     best_action = None
-
-    if state_copy.is_win() or depth == -2:
-      return best_action
+    
+    handler = GameStateHandler(state_copy)
+    agents = handler.get_agents()
+    
+    if abs(depth) == 1 and state_copy.is_loss():  #if MIN and lossed
+      return best_action, eval_fn(state_copy)
+    elif abs(depth) != 1 and state_copy.is_win(): #if MAX and won
+      return best_action, eval_fn(state_copy)
+    elif depth == -2:                             #depth end
+      return best_action, eval_fn(state_copy)
+    
     if abs(depth) == 1: #MIN SO OPPONENT
       value = math.inf
-      handler = GameStateHandler(state_copy)
-      agents = handler.get_agents()[1:]
-      for agent in agents:
-        for action in handler.get_agent_actions(agent):  #succesor is a tuple [direction, new_state]
-          #for move in handler.get_successor(agent, action):
-          next_pos = handler.get_successor(agent, action)
-          next_val = eval_fn(next_pos)    #equiv to DFMiniMax(nxt_pos)?
-          next_move = GameTreeSearching.minimax_search(next_pos, eval_fn, depth-1)   
-          if abs(depth) != 1 and value < next_val:
-            value, best_action = next_val, action
-          if abs(depth) == 1 and value > next_val:
-            value, best_action = next_val, action      
-      return best_action
-    else:               #MAX SO PLAYER
+      agents = agents[1:]
+    else:
       value = -math.inf
-      handler = GameStateHandler(state_copy)
-      succ = handler.get_successors()
-      for move in handler.get_successors():  #succesor is a tuple [direction, new_state]
-        next_pos = move[1]   #move is a tuple
-        next_val = eval_fn(next_pos)    #equiv to DFMiniMax(nxt_pos)?
-        next_move = GameTreeSearching.minimax_search(next_pos, eval_fn, depth-1)             
+      agents = agents[:1]
+      
+    for agent in agents:
+      for action in handler.get_agent_actions(agent):  #succesor is a tuple [direction, new_state]
+        next_pos = handler.get_successor(agent, action)
+        next_move, next_val = GameTreeSearching.minimax_helper(next_pos, eval_fn, depth-1)
+
         if abs(depth) != 1 and value < next_val:
-          value, best_action = next_val, move[0]
+          value, best_action = next_val, action
         if abs(depth) == 1 and value > next_val:
-          value, best_action = next_val, move[0]
+          value, best_action = next_val, action      
     
-      return best_action
+    return best_action, value
+    
+    
 
   @staticmethod
   def alpha_beta_search(state, eval_fn, depth):
