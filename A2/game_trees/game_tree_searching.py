@@ -29,25 +29,29 @@ class GameTreeSearching:
   def minimax_search(state, eval_fn, depth = 2):
     # Question 1, your minimax search solution goes here
     # Returns a SINGLE action based off the results of the search
-    return GameTreeSearching.minimax_helper(state, eval_fn, depth)[0]
+    moves = depth * 2
+    return GameTreeSearching.minimax_helper(state, eval_fn, depth, moves)[0]
     
     
   @staticmethod
-  def minimax_helper(state, eval_fn, depth):
+  def minimax_helper(state, eval_fn, depth, moves):
     state_copy = state.copy()
     best_action = None
     
     handler = GameStateHandler(state_copy)
     agents = handler.get_agents()
     
-    if abs(depth) == 1 and state_copy.is_loss():  #if MIN and lossed
+    player = moves % 2
+    
+    if moves == 0:                             #depth end
+      return best_action, eval_fn(state_copy)    
+    elif player == 1 and state_copy.is_loss():  #if MIN and lossed
       return best_action, eval_fn(state_copy)
-    elif abs(depth) != 1 and state_copy.is_win(): #if MAX and won
-      return best_action, eval_fn(state_copy)
-    elif depth == -2:                             #depth end
+    elif player == 0 and state_copy.is_win(): #if MAX and won
       return best_action, eval_fn(state_copy)
     
-    if abs(depth) == 1: #MIN SO OPPONENT
+    
+    if player == 1: #MIN SO OPPONENT
       value = math.inf
       agents = agents[1:]
     else:
@@ -57,11 +61,11 @@ class GameTreeSearching:
     for agent in agents:
       for action in handler.get_agent_actions(agent):  #succesor is a tuple [direction, new_state]
         next_pos = handler.get_successor(agent, action)
-        next_move, next_val = GameTreeSearching.minimax_helper(next_pos, eval_fn, depth-1)
+        next_move, next_val = GameTreeSearching.minimax_helper(next_pos, eval_fn, depth-1, moves-1)
 
-        if abs(depth) != 1 and value < next_val:
+        if player == 0 and value < next_val:  #MAX
           value, best_action = next_val, action
-        if abs(depth) == 1 and value > next_val:
+        if player == 1 and value > next_val:  #MIN
           value, best_action = next_val, action      
     
     return best_action, value
@@ -119,4 +123,45 @@ class GameTreeSearching:
   def expectimax_search(state, eval_fn, depth):
     # Question 3, your expectimax search solution goes here
     # Returns a SINGLE action based off the results of the search
-    raise NotImplementedError("Expectimax search not implemented")
+    moves = depth * 2
+    return GameTreeSearching.expectimax_helper(state, eval_fn, depth, moves)[0]
+  
+  def expectimax_helper(state, eval_fn, depth, moves):
+    state_copy = state.copy()
+    best_action = None
+    
+    handler = GameStateHandler(state_copy)
+    agents = handler.get_agents()
+    
+    player = moves % 2
+    
+    if moves == 0:                             #depth end
+      return best_action, eval_fn(state_copy)    
+    elif player == 1 and state_copy.is_loss():  #if MIN and lossed
+      return best_action, eval_fn(state_copy)
+    elif player == 0 and state_copy.is_win(): #if MAX and won
+      return best_action, eval_fn(state_copy)
+    
+    if player == 1: #CHANCE SO OPPONENT
+      value = 0
+      agents = agents[1:]
+    else:               #MAX
+      value = -math.inf
+      agents = agents[:1]
+      
+    for agent in agents:
+      for action in handler.get_agent_actions(agent):  #succesor is a tuple [direction, new_state]
+        next_pos = handler.get_successor(agent, action)
+        next_move, next_val = GameTreeSearching.expectimax_helper(next_pos, eval_fn, depth-1, moves-1)
+
+        if player == 0 and value < next_val:   #MAX
+          value, best_action = next_val, action
+        if player == 1:   #CHANCE
+          value = value + 1/(handler.get_agent_count() - 1) * next_val  #un-tested
+          #value = value + 0.25 * next_val
+    
+    return best_action, value
+    #no best action for CHANCE players
+    
+  
+  
