@@ -72,9 +72,49 @@ class GameTreeSearching:
   def alpha_beta_search(state, eval_fn, depth):
     # Question 2, your alpha beta pruning search solution goes here
     # Returns a SINGLE action based off the results of the search
-    
-    raise NotImplementedError("Alpha Beta Pruning search not implemented")
+    return GameTreeSearching.alpha_beta_helper(state, eval_fn, depth, -math.inf, math.inf)[0]
+  
+  @staticmethod
+  def alpha_beta_helper(state, eval_fn, depth, alpha, beta):
+    state_copy = state.copy()
+    best_action = None
 
+    handler = GameStateHandler(state_copy)
+    agents = handler.get_agents()
+
+    if abs(depth) == 1 and state_copy.is_loss():  #if MIN and lossed
+      return best_action, eval_fn(state_copy)
+    elif abs(depth) != 1 and state_copy.is_win(): #if MAX and won
+      return best_action, eval_fn(state_copy)
+    elif depth == -2:                             #depth end
+      return best_action, eval_fn(state_copy)
+
+    if abs(depth) == 1: #MIN SO OPPONENT
+      value = math.inf
+      agents = agents[1:]
+    else:
+      value = -math.inf
+      agents = agents[:1]
+
+    for agent in agents:
+      for action in handler.get_agent_actions(agent):  #succesor is a tuple [direction, new_state]
+        next_pos = handler.get_successor(agent, action)
+        next_move, next_val = GameTreeSearching.alpha_beta_helper(next_pos, eval_fn, depth-1, alpha, beta)
+
+        if abs(depth) != 1: #PLAYER MAX CHECK DIFF
+          if value < next_val:
+            value, best_action = next_val, action
+          if value >= beta:
+            return best_action, value
+          alpha = max(alpha, value)
+        if abs(depth) == 1: #PLAYER MIN 
+          if value > next_val:
+            value, best_action = next_val, action
+          if value <= alpha:
+            return best_action, value
+          beta = min(beta, value)
+    return best_action, value  
+  
   @staticmethod
   def expectimax_search(state, eval_fn, depth):
     # Question 3, your expectimax search solution goes here
