@@ -160,8 +160,8 @@ class GameTreeSearching:
         if player == 0 and value < next_val:   #MAX
           value, best_action = next_val, action
         if player == 1:   #CHANCE
-          value = value + 1/(handler.get_agent_count()) * next_val  #un-tested
-          #value = value + 0.25 * next_val
+          value = value + 1/len(handler.get_agent_actions(agent)) * next_val #uniform chance for each action to be chosen
+          
     
     return best_action, value
     #no best action for CHANCE players
