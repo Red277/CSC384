@@ -76,24 +76,27 @@ class GameTreeSearching:
   def alpha_beta_search(state, eval_fn, depth):
     # Question 2, your alpha beta pruning search solution goes here
     # Returns a SINGLE action based off the results of the search
-    return GameTreeSearching.alpha_beta_helper(state, eval_fn, depth, -math.inf, math.inf)[0]
+    moves = depth * 2
+    return GameTreeSearching.alpha_beta_helper(state, eval_fn, depth, -math.inf, math.inf, moves)[0]
   
   @staticmethod
-  def alpha_beta_helper(state, eval_fn, depth, alpha, beta):
+  def alpha_beta_helper(state, eval_fn, depth, alpha, beta, moves):
     state_copy = state.copy()
     best_action = None
+
+    player = moves % 2
 
     handler = GameStateHandler(state_copy)
     agents = handler.get_agents()
 
-    if abs(depth) == 1 and state_copy.is_loss():  #if MIN and lossed
+    if moves == 0:                             #depth end
+      return best_action, eval_fn(state_copy)    
+    elif player == 1 and state_copy.is_loss():  #if MIN and lossed
       return best_action, eval_fn(state_copy)
-    elif abs(depth) != 1 and state_copy.is_win(): #if MAX and won
-      return best_action, eval_fn(state_copy)
-    elif depth == -2:                             #depth end
+    elif player == 0 and state_copy.is_win(): #if MAX and won
       return best_action, eval_fn(state_copy)
 
-    if abs(depth) == 1: #MIN SO OPPONENT
+    if player == 1: #MIN SO OPPONENT
       value = math.inf
       agents = agents[1:]
     else:
@@ -103,15 +106,15 @@ class GameTreeSearching:
     for agent in agents:
       for action in handler.get_agent_actions(agent):  #succesor is a tuple [direction, new_state]
         next_pos = handler.get_successor(agent, action)
-        next_move, next_val = GameTreeSearching.alpha_beta_helper(next_pos, eval_fn, depth-1, alpha, beta)
+        next_move, next_val = GameTreeSearching.alpha_beta_helper(next_pos, eval_fn, depth-1, alpha, beta, moves-1)
 
-        if abs(depth) != 1: #PLAYER MAX CHECK DIFF
+        if player == 0: #PLAYER MAX CHECK DIFF
           if value < next_val:
             value, best_action = next_val, action
           if value >= beta:
             return best_action, value
           alpha = max(alpha, value)
-        if abs(depth) == 1: #PLAYER MIN 
+        if player == 1: #PLAYER MIN 
           if value > next_val:
             value, best_action = next_val, action
           if value <= alpha:
@@ -157,7 +160,7 @@ class GameTreeSearching:
         if player == 0 and value < next_val:   #MAX
           value, best_action = next_val, action
         if player == 1:   #CHANCE
-          value = value + 1/(handler.get_agent_count() - 1) * next_val  #un-tested
+          value = value + 1/(handler.get_agent_count()) * next_val  #un-tested
           #value = value + 0.25 * next_val
     
     return best_action, value
