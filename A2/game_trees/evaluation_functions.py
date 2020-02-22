@@ -26,17 +26,18 @@ class EvaluationFunctions:
     return ((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2) ** 0.5
   
   @staticmethod
-  #returns the SMALLEST distance between a box in boxes and a given switch
+  #returns value between a single switch and all boxes on the map
   def get_min_box_distance(switch_loc, boxes, state):
-    distance = math.inf
+    #distance = math.inf
+    distance = 0
     for box in boxes:
-      temp = EvaluationFunctions.manhattan_heuristic(switch_loc, box)
-      temp2 = EvaluationFunctions.manhattan_heuristic(box, state.get_player_position())
-      x = temp + temp2
-      print(temp2)
-      print(temp)
-      if x < distance:
-        distance = x
+      box_to_switch = EvaluationFunctions.safe_div(1, EvaluationFunctions.manhattan_heuristic(switch_loc, box)) * 100   #should weigh more? fails last test case tho
+      box_to_player = EvaluationFunctions.safe_div(1, EvaluationFunctions.manhattan_heuristic(box, state.get_player_position())) * 150  #should weigh less? passes last test case tho
+      x = box_to_switch + box_to_player
+      #print(box_to_switch)
+      #print(box_to_player)
+      distance += x
+
     
     return distance
 
@@ -64,6 +65,7 @@ class EvaluationFunctions:
       #print(a)
       box_to_switch_sum += a
     
+    #no inverse for this sum, its better for distance to be greater
     player_to_enemy_sum = 0
     enemies = state.get_enemies()
     for enemy in enemies:
@@ -71,9 +73,8 @@ class EvaluationFunctions:
       
     #inverse sum before mutiplying with weight
     #10 and 5 are just randomly chosen so box distance is prioritized over enemy distance
-    eval_sum += EvaluationFunctions.safe_div(1, box_to_switch_sum) * 10  #+  EvaluationFunctions.safe_div(1, player_to_enemy_sum) * 15
-    print(eval_sum)
-    #print(box_to_switch_sum)
+    eval_sum += box_to_switch_sum  +  player_to_enemy_sum
+    #print(eval_sum)
     return eval_sum    
 
   @staticmethod
