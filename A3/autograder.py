@@ -15,7 +15,12 @@ def test_constraint(csp, solution):
 
 def test_algorithm(algo, csp, solution):
   sol = algo(csp)
+  #for k in create_solution(csp.variables(), solution):
+    #print(k)
+  print(sol)
+  print(create_solution(csp.variables(), solution))
   return sol == create_solution(csp.variables(), solution) 
+
 
 def test_future_check(csp, solution):
   var, val = csp.variables()[solution[0]], solution[1]

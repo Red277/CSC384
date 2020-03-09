@@ -30,5 +30,34 @@ class TetrisCSP(CSP):
     #                                             can take before resulting in its original position.
     # Tetromino.get_pruned_dimensions() --> Returns row_count, col_count of the tetromino pruned piece.
     
-    raise NotImplementedError("Build Domain not defined for TetrisCSP") 
+    
+    #get_pruned_dimensions(var) gives you the dimensions of the variable i.e 2x2 is a square in this case
+    #the grid should be constant according to ilir, it is 3 rows x 6 columns
+    
+    domain = []
+    #dimensions = var.get_pruned_dimensions()
+    rotation_limit = TetrominoUtil.rotation_limit(var)
+    
+    for k in range(rotation_limit):
+      var.rotate()
+      dimensions = var.get_pruned_dimensions()
+      
+      
+      #print(k, dimensions[0], dimensions[1])
+      for i in range(self._rows):
+        for j in range(self._cols):
+          
+          #if i + dimensions[0] <= self._rows and (j + dimensions[1] <= self._cols  or ((j+1) - dimensions[1] >= 0 and rotation_limit > 1)):
+          if i + dimensions[0] <= self._rows and j + dimensions[1] <= self._cols:
+            #or ((i+1) - dimensions[0] >= 0 and 
+            a = ((i,j), k)
+            if a not in domain:
+              domain.append(a)
+          
+    
+    print(var)
+    print(domain)
+    
+    return domain
+    #raise NotImplementedError("Build Domain not defined for TetrisCSP") 
         

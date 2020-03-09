@@ -22,13 +22,102 @@ class CSPAlgorithms:
   
   @staticmethod
   def backtracking(csp):
-    # Qustion 3, your backtracking algorithm goes here.
+    # Question 3, your backtracking algorithm goes here.
 
     # Returns an assignment of values to the variables such that the constraints are satisfied. None
     # if no assignment is found.
-
-    raise NotImplementedError("Backtracking algorithm not implemented")
-
+    
+    #BT(UnassignedVars)
+    #return CSPAlgorithms.backtracking_helper(csp.unassigned_variables(), csp.constraints(), csp.assignments(), csp)
+    #print(csp.assignments())
+    
+    unassignedVars = csp.unassigned_variables()
+    if len(unassignedVars) == 0:
+      #for var in variables:
+        #print var.name(), " =", var.getValue()
+        
+      #if allSolutions: #boolean, was set to true to print all sol
+      #  return # continue search to print all solutions
+      #else:
+      print(csp.assignments())
+      return csp.assignments()
+      #terminate after one solution found
+          
+    var = csp.extract_unassigned() #unassignedVars.extract() #select next variable to assign
+    for val in var.domain():
+      csp.assign(var, val) #addes key:value pair into assignments for you
+      constraintOK = True
+      
+      for constraint in csp.constraints(): #?
+        #if constraint.numUnassigned() == 0: #?
+        var_list = []
+        for key in csp.assignments():
+          var_list.append(key)
+        #print("in loop")
+        if not constraint.check(var_list, csp.assignments()): #?
+        #if constraint.check(var_list, csp.assignments()):
+          constraintOK = False
+          break 
+      
+      if constraintOK:
+        print("in recursion")
+        CSPAlgorithms.backtracking(csp) #recursion
+    
+    csp.assign(var, None)                   #var.setValue(None) #undo assignemnt to vared vars
+    unassignedVars.append(var)   #unassignedvars.insert(var) restore var to unassigned
+    
+    print("uh oh")
+    return None    
+  
+  #@staticmethod
+  #def backtracking_helper(unassignedVars, constraints, assignments, csp):
+    ##unassignedVars = csp.unassigned_variables()
+    #if len(unassignedVars) == 0:
+      ##for var in variables:
+        ##print var.name(), " =", var.getValue()
+        
+      ##if allSolutions: #boolean, was set to true to print all sol
+      ##  return # continue search to print all solutions
+      ##else:
+      #return assignments
+      ##terminate after one solution found
+          
+    #var = csp.extract_unassigned() #unassignedVars.extract() #select next variable to assign
+    #for val in var.domain():
+      #csp.assign(var, val) #addes key:value pair into assignments for you
+      #constraintOK = True
+      
+      #for constraint in constraints: #?
+        ##if constraint.numUnassigned() == 0: #?
+        #var_list = []
+        #for key in assignments:
+          #var_list.append(key)
+        #if not constraint.check(var_list, assignments):         #?
+          #constraintsOK = False
+          #break 
+      
+      #if constraintOK:
+        #backtracking(unassignedVars, constraints, assignments, csp) #recursion
+    
+    #csp.assign(var, None)                   #var.setValue(None) #undo assignemnt to vared vars
+    #unassignedVars.append(var)   #unassignedvars.insert(var) restore var to unassigned
+    
+    #return None
+    
+  #@staticmethod
+  #def constraintsOf(var, listOfConstraints):
+    #temp = []
+    #for constraint in listOfConstraints:
+      #if var in constraint.
+      
+  @staticmethod
+  def numUnassigned(dict):
+    count = 0
+    for key in dict:
+      if dict[key] == None:
+        count+=1
+    return count
+    
   @staticmethod
   def forward_checking(csp):
     # Question 4, your foward checking algorithm goes here.
