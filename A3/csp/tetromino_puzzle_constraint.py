@@ -21,6 +21,7 @@ class TetrominoPuzzleConstraint(Constraint):
     # Tetromino.rotate(rotation_amount) --> rotates the tetromino piece rotation_amount times
     
   def check(self, variables, assignments):
+    
     # Question 2, your check solution goes here.
 
     # This method returns True iff the given variables and their assignments satisfy the Tetromino Puzzle
@@ -32,32 +33,34 @@ class TetrominoPuzzleConstraint(Constraint):
 
     #pruned dimensions returns row count col count so variable J would be (2, 3) i.e 2 rows occupied and 3 columns
     #pruned grid lets you know how many spaces are occupied in each row
-      
-    self._grid= MatrixUtil.copy(self._grid)
+ 
     for var in variables: #check to make sure no variable overlaps another or goes off the grid
       if assignments[var] != None:
-        if MatrixUtil.valid_position(self._grid, assignments[var][0][0], assignments[var][0][1]):
-          var_copy = TetrominoUtil.copy(var)
-          #if var in assignments: #WEIRD CHECK
+         #checking position of assignmetn with matrix
+        var_copy = TetrominoUtil.copy(var)
           
-          var_row = assignments[var][0][0]
-          var_col = assignments[var][0][1]
+        var_row = assignments[var][0][0]
+        var_col = assignments[var][0][1]
           
-          var_x = var_copy.get_pruned_dimensions()[0]
-          var_y = var_copy.get_pruned_dimensions()[1]
-          var_grid = var_copy.get_pruned_grid()
-
+        var_copy.rotate(assignments[var][1]) #rotate cyop by rotation count 
+        var_x = var_copy.get_pruned_dimensions()[0]
+        var_y = var_copy.get_pruned_dimensions()[1]
+        #print(var_x)
+        #print(var_y)
+        var_grid = var_copy.get_pruned_grid()
+        
+        if MatrixUtil.valid_position(self._grid, assignments[var][0][0] + var_x-1, assignments[var][0][1] + var_y-1): #beta 
+        #if MatrixUtil.valid_position(self._grid, assignments[var][0][0], assignments[var][0][1]):
           #now check if it doesnt collide with any other variables, need to use matrices
           for var2 in variables:
-            var2_copy = TetrominoUtil.copy(var2)
             if var != var2 and assignments[var2] != None:
-              #if assignments[var2] != None: #dont need to check same variables (obvious conflict) #weird check to make sure var2 is even in assignments
-              #print(var2_copy)
-              #print(var_copy)
-              
+              var2_copy = TetrominoUtil.copy(var2)
+             
               var2_row = assignments[var2][0][0]
               var2_col = assignments[var2][0][1]
-            
+              
+
+              var2_copy.rotate(assignments[var2][1]) #rotate copy by rotation count
               var2_x = var2_copy.get_pruned_dimensions()[0]
               var2_y = var2_copy.get_pruned_dimensions()[1]
               var2_grid = var2_copy.get_pruned_grid()
@@ -65,12 +68,14 @@ class TetrominoPuzzleConstraint(Constraint):
               for i in range(len(var_grid)):
                 for j in range(len(var2_grid)):
                   if (var_row + i) == (var2_row + j):
+                    #print("checking")
                     if ((var_col + len(var_grid[i])) <= var2_col) or (var_col >= var2_col + len(var2_grid[j])):
                       continue
                     else:
                       return False
         else:
           return False
+    
     
     return True
             

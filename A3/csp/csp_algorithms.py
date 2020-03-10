@@ -27,47 +27,36 @@ class CSPAlgorithms:
     # Returns an assignment of values to the variables such that the constraints are satisfied. None
     # if no assignment is found.
     
-    #BT(UnassignedVars)
-    #return CSPAlgorithms.backtracking_helper(csp.unassigned_variables(), csp.constraints(), csp.assignments(), csp)
-    #print(csp.assignments())
-    
-    unassignedVars = csp.unassigned_variables()
-    if len(unassignedVars) == 0:
-      #for var in variables:
-        #print var.name(), " =", var.getValue()
-        
+    #unassignedVars = csp.unassigned_variables()
+    if csp.num_unassigned() == 0:
+      print("wtf")
       #if allSolutions: #boolean, was set to true to print all sol
       #  return # continue search to print all solutions
       #else:
       print(csp.assignments())
-      return csp.assignments()
+      return
       #terminate after one solution found
           
-    var = csp.extract_unassigned() #unassignedVars.extract() #select next variable to assign
+    var = csp.extract_unassigned() #select next variable to assign
     for val in var.domain():
       csp.assign(var, val) #addes key:value pair into assignments for you
       constraintOK = True
       
-      for constraint in csp.constraints(): #?
-        #if constraint.numUnassigned() == 0: #?
+      for constraint in csp.constraints():
         var_list = []
         for key in csp.assignments():
           var_list.append(key)
-        #print("in loop")
-        if not constraint.check(var_list, csp.assignments()): #?
-        #if constraint.check(var_list, csp.assignments()):
+        if not constraint.check(var_list, csp.assignments()):
           constraintOK = False
           break 
-      
-      if constraintOK:
-        print("in recursion")
+      if constraintOK == True:
         CSPAlgorithms.backtracking(csp) #recursion
     
-    csp.assign(var, None)                   #var.setValue(None) #undo assignemnt to vared vars
-    unassignedVars.append(var)   #unassignedvars.insert(var) restore var to unassigned
+    csp.unassign(var)                  #unassings var AND appends it to unassigned for u
+
     
-    print("uh oh")
-    return None    
+    #print("uh oh")
+    return
   
   #@staticmethod
   #def backtracking_helper(unassignedVars, constraints, assignments, csp):
