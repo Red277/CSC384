@@ -61,10 +61,9 @@ class EvaluationFunctions:
     switches = state.get_switches()
     boxes = state.get_boxes()
     for switch_loc in switches:
-      a = EvaluationFunctions.get_min_box_distance(switch_loc, boxes, state)
-      #print(a)
-      box_to_switch_sum += a
-    
+      box_to_switch = EvaluationFunctions.get_min_box_distance(switch_loc, boxes, state)
+      box_to_switch_sum += box_to_switch
+      
     #no inverse for this sum, its better for distance to be greater
     player_to_enemy_sum = 0
     enemies = state.get_enemies()
@@ -74,7 +73,6 @@ class EvaluationFunctions:
     #inverse sum before mutiplying with weight
     #10 and 5 are just randomly chosen so box distance is prioritized over enemy distance
     eval_sum += box_to_switch_sum  +  player_to_enemy_sum
-    #print(eval_sum)
     return eval_sum    
 
   @staticmethod
@@ -82,12 +80,11 @@ class EvaluationFunctions:
     #Question 5, your points evaluation solution goes here
     #Returns a numeric value evaluating the given state where the larger the better
     for pos in state.get_switches():
-      #only one switch so simply set it to switch_pos
       switch_pos = pos
     player_pos = state.get_player_position()
     if state.get_obtained_points() >= 5: 
       #Case of only need to hit switch compare switch and player position
-      return 1/EvaluationFunctions.euclidean_heuristic(player_pos, switch_pos)
+      return EvaluationFunctions.safe_div(1, EvaluationFunctions.euclidean_heuristic(player_pos, switch_pos))
     distances = []
     total_dis = 0
     point_to_switch = 0
@@ -95,8 +92,8 @@ class EvaluationFunctions:
     player_pos = state.get_player_position()
     temp_remain = state.get_remaining_points()[:] #copy remaining points so we can delete from copy
     
-    for k in range(5 - state.get_obtained_points(), 0, -1):
-      if k == 1: #IF ONLY ONE POINT IS LEFT TO OBTAIN
+    for points_left in range(5 - state.get_obtained_points(), 0, -1):
+      if points_left == 1: #IF ONLY ONE POINT IS LEFT TO OBTAIN
         for i in range(0, len(temp_remain)):
           point_pos = temp_remain[i]
           player_to_point = EvaluationFunctions.euclidean_heuristic(player_pos, point_pos) * 1.5 
@@ -107,14 +104,16 @@ class EvaluationFunctions:
           distances.append(sum_both)
         for enemy in state.get_enemies():
           total_dis += EvaluationFunctions.euclidean_heuristic(player_pos, enemy)
-        #Apparently you have to check this because sometimes there aren't enough points on the board 
-        #to obtain the boots so you could have an empty distances and the check loops through the 5 points
-        #For example the first test case in Q5 has only 3 points and 0 obtained so it just ignores the fact
-        #that you need 5 points and says best state is when there is no points left and you're at the switch
-        #even though you don't have 5 points
+        '''
+        Apparently you have to check distances != 0 because sometimes there aren't enough points on the board 
+        to obtain the boots so you could have an empty distances and my loop goes through the 5 points required.
+        For example the first test case in Q5 has only 3 points and 0 obtained so it just ignores the fact
+        that you need 5 points and says best state is when there is no points left and you're at the switch
+        even though you don't have 5 points to activate the switch.
+        '''
         if distances != []:
           distances.sort() 
-          total_dis += 1/distances[0] #smallest distance is most optimal do inverse because bigger better
+          total_dis += EvaluationFunctions.safe_div(1, distances[0]) #smallest distance is most optimal do inverse because bigger better
           #reset distances
           distances = []
       else:
@@ -122,16 +121,17 @@ class EvaluationFunctions:
           point_pos = temp_remain[i]
           player_to_point = (EvaluationFunctions.euclidean_heuristic(player_pos, point_pos), point_pos)
           distances.append(player_to_point)
-        #find and add the shortest distance between points and player
         for enemy in state.get_enemies():
           total_dis += EvaluationFunctions.euclidean_heuristic(player_pos, enemy)
+        #same reasoning as above distance check
         if distances != []:
           distances.sort()
           temp_remain.remove(distances[0][1]) #remove point because we theoretically got the point
           player_pos = distances[0][1] #update player_pos because we theoretically moved them
-          #need to do the inverse because smaller is better here but overall want bigger to be better
+          
+          #need to add the inverse because smaller is better here but overall want bigger to be better
           #multiply by 1.5 because points are more important than enemies
-          total_dis += 1/(distances[0][0] * 1.5)
-          #reset distances
+          total_dis += EvaluationFunctions.safe_div(1, (distances[0][0] * 1.5))
+          #reset distances for next shortest distance
           distances = []
     return total_dis    
