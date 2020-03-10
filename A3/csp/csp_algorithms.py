@@ -50,7 +50,7 @@ class CSPAlgorithms:
           constraintOK = False
           break 
       if constraintOK == True:
-        CSPAlgorithms.backtracking(csp) #recursion
+        return CSPAlgorithms.backtracking(csp) #recursion
     
     csp.unassign(var)                  #unassings var AND appends it to unassigned for u
 
@@ -119,8 +119,24 @@ class CSPAlgorithms:
     #                                                 a forward check on the given constraint and variable.
     # CSPUtil.undo_pruning_for(var) --> undoes all pruning that was caused by forward checking the given variable.
 
-    raise NotImplementedError("Forward Checking algorithm not implemented")
-
+    if csp.num_unassigned() == 0:
+      return csp.assignments()
+    var = csp.extract_unassigned() #select next variable to assign
+    for val in var.domain(): #cuttent domain?
+      csp.assign(var, val) #addes key:value pair into assignments for you
+      noDWO = True
+  
+      for constraint in csp.constraints(): 
+        if csp.num_unassigned() == 1:
+          if not (CSPUtil.forward_check(csp, constraint, var)):
+            noDWO = False
+            break
+      if noDWO:
+        return CSPAlgorithms.forward_checking(csp)
+      CSPUtil.undo_pruning_for(var)
+    csp.unassign(var)                  #unassings var AND appends it to unassigned for u
+    return
+      
   @staticmethod
   def gac(csp):
     # Question 6, your gac algorithm goes here.
