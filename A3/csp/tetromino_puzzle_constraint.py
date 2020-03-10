@@ -33,51 +33,76 @@ class TetrominoPuzzleConstraint(Constraint):
 
     #pruned dimensions returns row count col count so variable J would be (2, 3) i.e 2 rows occupied and 3 columns
     #pruned grid lets you know how many spaces are occupied in each row
- 
+    grid_copy = MatrixUtil.copy(self._grid)
     for var in variables: #check to make sure no variable overlaps another or goes off the grid
       if assignments[var] != None:
-         #checking position of assignmetn with matrix
+        #checking position of assignmetn with matrix
         var_copy = TetrominoUtil.copy(var)
           
         var_row = assignments[var][0][0]
         var_col = assignments[var][0][1]
           
         var_copy.rotate(assignments[var][1]) #rotate cyop by rotation count 
+        #added
         var_x = var_copy.get_pruned_dimensions()[0]
         var_y = var_copy.get_pruned_dimensions()[1]
-        #print(var_x)
-        #print(var_y)
         var_grid = var_copy.get_pruned_grid()
+        if MatrixUtil.valid_position(grid_copy, assignments[var][0][0] + var_x-1, assignments[var][0][1] + var_y-1):
+          for x in range(var_x):
+            for y in range(var_y):
+              if grid_copy[var_row + x][var_col + y] != 0 and var_grid[x][y] != 0:#check if all spots are 0:
+                return False
+          TetrominoUtil.place(grid_copy, var_copy, (var_row, var_col))
+        else: #not even valid in grid
+          return False
+    return True
         
-        if MatrixUtil.valid_position(self._grid, assignments[var][0][0] + var_x-1, assignments[var][0][1] + var_y-1): #beta 
-        #if MatrixUtil.valid_position(self._grid, assignments[var][0][0], assignments[var][0][1]):
-          #now check if it doesnt collide with any other variables, need to use matrices
-          for var2 in variables:
-            if var != var2 and assignments[var2] != None:
-              var2_copy = TetrominoUtil.copy(var2)
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        #var_x = var_copy.get_pruned_dimensions()[0]
+        #var_y = var_copy.get_pruned_dimensions()[1]
+        ##print(var_x)
+        ##print(var_y)
+        #var_grid = var_copy.get_pruned_grid()
+        
+        #if MatrixUtil.valid_position(self._grid, assignments[var][0][0] + var_x-1, assignments[var][0][1] + var_y-1): #beta 
+        ##if MatrixUtil.valid_position(self._grid, assignments[var][0][0], assignments[var][0][1]):
+          ##now check if it doesnt collide with any other variables, need to use matrices
+          #for var2 in variables:
+            #if var != var2 and assignments[var2] != None:
+              #var2_copy = TetrominoUtil.copy(var2)
              
-              var2_row = assignments[var2][0][0]
-              var2_col = assignments[var2][0][1]
+              #var2_row = assignments[var2][0][0]
+              #var2_col = assignments[var2][0][1]
               
 
-              var2_copy.rotate(assignments[var2][1]) #rotate copy by rotation count
-              var2_x = var2_copy.get_pruned_dimensions()[0]
-              var2_y = var2_copy.get_pruned_dimensions()[1]
-              var2_grid = var2_copy.get_pruned_grid()
+              #var2_copy.rotate(assignments[var2][1]) #rotate copy by rotation count
+              #var2_x = var2_copy.get_pruned_dimensions()[0]
+              #var2_y = var2_copy.get_pruned_dimensions()[1]
+              #var2_grid = var2_copy.get_pruned_grid()
               
-              for i in range(len(var_grid)):
-                for j in range(len(var2_grid)):
-                  if (var_row + i) == (var2_row + j):
-                    #print("checking")
-                    if ((var_col + len(var_grid[i])) <= var2_col) or (var_col >= var2_col + len(var2_grid[j])):
-                      continue
-                    else:
-                      return False
-        else:
-          return False
+              #for i in range(len(var_grid)):
+                #for j in range(len(var2_grid)):
+                  #if (var_row + i) == (var2_row + j):
+                    ##print("checking")
+                    #if ((var_col + len(var_grid[i])) <= var2_col) or (var_col >= var2_col + len(var2_grid[j])):
+                      #continue
+                    #else:
+                      #return False
+        #else:
+          #return False
     
     
-    return True
+    #return True
             
             
       

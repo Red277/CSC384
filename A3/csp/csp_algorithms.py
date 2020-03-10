@@ -29,12 +29,12 @@ class CSPAlgorithms:
     
     #unassignedVars = csp.unassigned_variables()
     if csp.num_unassigned() == 0:
-      print("wtf")
+      #print("wtf")
       #if allSolutions: #boolean, was set to true to print all sol
       #  return # continue search to print all solutions
       #else:
       print(csp.assignments())
-      return
+      return csp.assignments()
       #terminate after one solution found
           
     var = csp.extract_unassigned() #select next variable to assign
@@ -55,7 +55,7 @@ class CSPAlgorithms:
     csp.unassign(var)                  #unassings var AND appends it to unassigned for u
 
     
-    #print("uh oh")
+    print("uh oh")
     return
   
   #@staticmethod

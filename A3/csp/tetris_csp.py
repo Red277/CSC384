@@ -55,8 +55,8 @@ class TetrisCSP(CSP):
               domain.append(a)
           
     
-    print(var)
-    print(domain)
+    #print(var)
+    #print(domain)
     
     return domain
     #raise NotImplementedError("Build Domain not defined for TetrisCSP") 
