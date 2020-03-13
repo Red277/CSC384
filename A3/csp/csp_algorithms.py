@@ -122,12 +122,13 @@ class CSPAlgorithms:
     if csp.num_unassigned() == 0:
       return csp.assignments()
     var = csp.extract_unassigned() #select next variable to assign
-    for val in var.domain(): #cuttent domain?
+    for val in var.active_domain(): #cuttent domain?
       csp.assign(var, val) #addes key:value pair into assignments for you
       noDWO = True
   
-      for constraint in csp.constraints(): 
-        if csp.num_unassigned() == 1:
+      for constraint in csp.constraints():  
+        #if not constraint.check(var_list, csp.assignments()):
+        if csp.num_unassigned() >= 1:
           if not (CSPUtil.forward_check(csp, constraint, var)):
             noDWO = False
             break
