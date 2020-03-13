@@ -56,18 +56,7 @@ class TetrominoPuzzleConstraint(Constraint):
         else: #not even valid in grid
           return False
     return True
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+               
         #var_x = var_copy.get_pruned_dimensions()[0]
         #var_y = var_copy.get_pruned_dimensions()[1]
         ##print(var_x)
@@ -98,27 +87,6 @@ class TetrominoPuzzleConstraint(Constraint):
                       #continue
                     #else:
                       #return False
-        #else:
-          #return False
-    
-    
-    #return True
-            
-            
-      
-          
-        
-      
-      
-      
-      #if MatrixUtil.valid_position(matrix, 
-                                   
-    #print(var.get_pruned_grid())
-    
-    #print(MatrixUtil.valid_position(matrix, 2, 5))
-    
-
-    
 
   def has_future(self, csp, var, val):
     # Question 5, your has future implementation goes here.
@@ -128,4 +96,37 @@ class TetrominoPuzzleConstraint(Constraint):
     # which have this variable : value combination to see if any such assignments satisfy the
     # Tetromino Puzzle constraint.
     
-    raise NotImplementedError("Has Future method for TetrominoPuzzleConstraint is not implemented")
+    #Say we find a value d of variableVi
+    #that is not consistent:
+    #That is, there is no assignments to the other variables that
+    #satisfy the constraint when Vi = d    
+    
+    #Iterate over all possible assignments to the other variables
+    #in the constraint, (values from their current domain) to see if
+    #any combination along with var=val satisfies the constraint.    
+    
+    csp.assign(var, val)
+    
+    if csp.num_unassigned() == 0:
+      return True
+    
+    
+    v = csp.extract_unassigned()
+    if v == var:
+      csp.extract_unassigned()
+      
+    for val in v.domain():
+      csp.assign(v, val)
+      constraintOK = True
+      
+      for constraint in csp.constraints():
+        if not constraint.check(csp.variables(), csp.assignments()):
+          constraintOK = False
+          break 
+      if constraintOK == True:
+        return TetrominoPuzzleConstraint.has_future(self, csp, var, val)
+    
+    csp.unassign(v)
+          
+    return False
+    

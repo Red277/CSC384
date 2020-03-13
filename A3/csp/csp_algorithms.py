@@ -27,13 +27,8 @@ class CSPAlgorithms:
     # Returns an assignment of values to the variables such that the constraints are satisfied. None
     # if no assignment is found.
     
-    #unassignedVars = csp.unassigned_variables()
     if csp.num_unassigned() == 0:
       #print("wtf")
-      #if allSolutions: #boolean, was set to true to print all sol
-      #  return # continue search to print all solutions
-      #else:
-      print(csp.assignments())
       return csp.assignments()
       #terminate after one solution found
           
@@ -43,19 +38,14 @@ class CSPAlgorithms:
       constraintOK = True
       
       for constraint in csp.constraints():
-        var_list = []
-        for key in csp.assignments():
-          var_list.append(key)
-        if not constraint.check(var_list, csp.assignments()):
+        if not constraint.check(csp.variables(), csp.assignments()):
           constraintOK = False
           break 
       if constraintOK == True:
-        CSPAlgorithms.backtracking(csp) #recursion
+        return CSPAlgorithms.backtracking(csp) #recursion
     
     csp.unassign(var)                  #unassings var AND appends it to unassigned for u
 
-    
-    print("uh oh")
     return
   
   #@staticmethod
@@ -99,13 +89,6 @@ class CSPAlgorithms:
     #for constraint in listOfConstraints:
       #if var in constraint.
       
-  @staticmethod
-  def numUnassigned(dict):
-    count = 0
-    for key in dict:
-      if dict[key] == None:
-        count+=1
-    return count
     
   @staticmethod
   def forward_checking(csp):
@@ -133,4 +116,20 @@ class CSPAlgorithms:
     #                                  on the constraints of the csp for the given variable.
     # CSPUtil.undo_pruning_for(var) --> undoes all pruning that was caused by forward checking the given variable.
 
-    raise NotImplementedError("GAC algorithm not implemented")
+    if csp.num_unassigned() == 0:
+      print("wtf")
+      return csp.assignments() #terminate after one solution found
+          
+    var = csp.extract_unassigned() #select next variable to assign
+    for val in var.domain():
+      csp.assign(var, val) #addes key:value pair into assignments for you
+      noDWO = True
+      if not CSPUtil.gac_enforce(csp, var):
+        noDWO = False
+      if noDWO:
+        return CSPAlgorithms.gac(csp)
+      CSPUtil.undo_pruning_for(var)
+    
+    csp.unassign(var)                  #unassings var AND appends it to unassigned for u
+
+    return    
