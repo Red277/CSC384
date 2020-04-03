@@ -29,12 +29,36 @@ class MarkovAgent(ProbabilityAgent):
     # For this method there is a special case to consider which happens when the distribution given by the EchoGrid
     # has only information which has NOT been seen before. In this case you must reset your current thought distribution
     # before continuing.
-
+    raise NotImplementedError("MarkovAgent's Predict not implemented")    
     # Uncomment this when you start implementing
-    # self._echo_grid.update(state) # Do Not Remove, it is required to have the EchoGrid give accurate information
+    self._echo_grid.update(state) # Do Not Remove, it is required to have the EchoGrid give accurate information
     
     # Write your code here
-    raise NotImplementedError("MarkovAgent's Listen not implemented")
+    flag = True
+    thoughts = Counter(self._thoughts)
+    echo_distribution = self._echo_grid.get_echo_distribution()
+    for pos in self._valid_positions:
+      if pos in thoughts:
+        flag = False
+        break
+      
+    if(flag):
+      self.reset_thoughts()
+      return
+    for pos in self._valid_positions:
+      if echo_distribution[pos] > 0:
+        #can normalize
+        #if thoughts[pos] == 0:
+          #thoughts[pos] = echo_distribution[pos]
+        #DistributionModel.normalize(thoughts)
+        thoughts[pos] = self._thoughts[pos] * echo_distribution[pos]
+      #else:
+      #  thoughts[pos] = 0
+    DistributionModel.normalize(thoughts)
+    self._thoughts = thoughts
+    return
+    #reset thoughts nothing in common    
+    
     
   # Implement the Time Lapse for HMM (Question 3)
   def predict(self, state):
@@ -43,10 +67,13 @@ class MarkovAgent(ProbabilityAgent):
     # be done through moving the mouse into positions on the map using this distribution to update your thoughts.
     # To avoid annoyances of state manipulation you should use a copy of the given state when you pretend to move the mouse
     # so that it does not effect the actual state.
-
+    raise NotImplementedError("MarkovAgent's Predict not implemented")
     # Uncomment this when you start implementing
-    # self._echo_grid.update(state) # Do Not Remove, it is required to have the EchoGrid give accurate information
+    self._echo_grid.update(state) # Do Not Remove, it is required to have the EchoGrid give accurate information
 
     # Write your code here
-    raise NotImplementedError("MarkovAgent's Predict not implemented")
- 
+    
+    copy_state = state.copy()
+    for mouse in state._mice:
+      return
+    

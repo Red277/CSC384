@@ -18,6 +18,8 @@ def markov_listen_test(simulator, state, solution):
   score = simulator.simulate_probability_agent(markov_agent, markov_agent.listen)
   if type(solution) == int:
     return score >= solution
+  print(markov_agent.thoughts())
+  print(convert_solution(solution))
   return markov_agent.thoughts() == convert_solution(solution)
 
 def markov_predict_test(simulator, state, solution):
@@ -56,7 +58,9 @@ def particle_reset_test(simulator, state, solution):
 
   # Reset the distribution
   grid.reset()
-
+  
+  print(grid.get_particle_distribution())
+  print(convert_solution(solution))
   return grid.get_particle_distribution() == convert_solution(solution)
 
 def particle_reweight_test(simulator, state, solution):
@@ -72,6 +76,9 @@ def particle_reweight_test(simulator, state, solution):
 
   # Reweight the particles
   grid.reweight_particles(dist)
+  
+  print(grid.get_particle_distribution())
+  print(convert_solution(solution))
   
   return grid.get_particle_distribution() == convert_solution(solution)
 
