@@ -14,11 +14,12 @@ class ParticleGrid:
     # Make sure to have the particle distribution be a _Counter_ not a regular dictionary!
     
     self._particle_distribution = Counter()
-    length = len(self._valid_positions)
+    pos_len = len(self._valid_positions)
     for i in range(len(self._valid_positions)):
       pos = self._valid_positions[i]
-      self._particle_distribution[pos] = 1 / length
-    #DistributionModel.normalize(self._particle_distribution)
+      div = self._particle_count // pos_len
+      for num in range(div):
+        self._particle_distribution[pos] += 1 / self._particle_count
     
     
   def reweight_particles(self, distribution):
@@ -29,22 +30,25 @@ class ParticleGrid:
     # For sampling use DistributionModel.sample_distribution(distribution, sample_amount) which will
     # return a list of legal positions got by sampling the given distribution.
     self._particle_distribution = Counter()
-    
-    weightedParticles = Counter()
-    
-    for particle in distribution:
-      weightedParticles[particle] += distribution[particle]
-    
-    DistributionModel.normalize(weightedParticles)
-    
-    if len(weightedParticles) == 0:
+    if self._particle_count == 0:
       self.reset()
     else:
-      samples = DistributionModel.sample_distribution(weightedParticles, len(weightedParticles))
-      #self._particle_distribution = samples
-      for sample in samples:
-        self._particle_distribution[sample] = weightedParticles[sample]   
-    
+      samples = DistributionModel.sample_distribution(distribution, self._particle_count)
+      iterator = samples
+      for sample in range(len(samples)):
+        appear = samples[sample]
+        num_appear = 0
+        counter = 0
+        while(counter < len(samples)):
+          if(iterator[counter] == appear):
+            num_appear += 1
+          counter += 1     
+
+        self._particle_distribution[appear] = num_appear
+    for leftover in distribution:
+      if not leftover in self._particle_distribution:
+        self._particle_distribution[leftover] = 0.0
+    DistributionModel.normalize(self._particle_distribution)
       
   def get_particle_distribution(self):
     return self._particle_distribution
